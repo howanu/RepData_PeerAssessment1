@@ -1,8 +1,24 @@
 # Reproducible Research: Peer Assessment 1
 
+```{r setoptions, message=FALSE, echo=FALSE}
+require(knitr)
+opts_chunk$set(echo=TRUE)
+```
 
 ## Loading and preprocessing the data
+```{r load}
+# The compressed zip archive
+  zip_filename <- "activity.zip"
 
+  # The data file stored inside the compressed zip archive
+  data_filename <- "activity.csv"
+
+  unzip(zip_filename)
+  obs <- read.csv(data_filename)
+  summary(obs)
+```
+Observations: `r dim(obs)[1]`  
+Directory: `r getwd()`
 
 
 ## What is mean total number of steps taken per day?
