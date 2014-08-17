@@ -18,14 +18,17 @@
   obs <- read.csv(data_filename)
 
   # Aggregate by day
-  steps_per_day <- aggregate(steps ~ date, data = obs, sum)
+  steps_per_day <-   aggregate(steps ~ date, data = obs, sum)
+  u_steps_per_day <- aggregate(steps ~ date, data = obs, mean)
+  names(u_steps_per_day)[names(u_steps_per_day)=="steps"] <- "u_steps"
 
   # Aggregate by time and average
-  steps_per_interval <- aggregate(steps ~ interval, data = obs, mean)
+  u_steps_per_int <- aggregate(steps ~ interval, data = obs, mean)
    
   # Summarize the data
   summary(obs)
 ```
+
 Observations: `r dim(obs)[1]`  
 
 
@@ -48,13 +51,14 @@ Observations: `r dim(obs)[1]`
 
 ## What is the average daily activity pattern?
 ```{r interval_mean}
-  plot(steps_per_interval$interval, steps_per_interval$steps, 
+  plot(u_steps_per_int$interval, u_steps_per_int$steps, 
        main="Average Steps per Interval", 
        xlab="Five minute Interval Identifier", 
        ylab="Steps", 
-       type="l")
+       type="l",
+       col="blue")
 
-  maxes <- steps_per_interval[steps_per_interval$steps == max(steps_per_interval$steps), ]
+  maxes <- u_steps_per_int[u_steps_per_int$steps == max(u_steps_per_int$steps), ]
   n_maxes <- dim(maxes)[1]
 
   if (n_maxes == 1) {
@@ -69,7 +73,24 @@ Observations: `r dim(obs)[1]`
 
 
 ## Imputing missing values
+```{r impute}
+  # plyr::join is needed for order preservation; otherwise merge() would do
+  require(plyr)
 
+  is_missing <- ! complete.cases(obs)
+  n_missing <- sum(is_missing)
+
+  # Missing steps get the interval means - assumes all desired days are present w/ NAs
+  int_lookup <- u_steps_per_int
+  names(int_lookup)[names(int_lookup)=="steps"] <- "u_steps"
+  imputers <- join(obs[is_missing,], int_lookup, by="interval")
+  imputed_obs <- obs
+  imputed_obs$steps[is_missing] <- imputers$u_steps
+
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+  # COmparable dates
+  #obs$datePOSIX <- as.POSIXlt(obs$date)
+  #obs$datestring <- as.character(obs$date)
