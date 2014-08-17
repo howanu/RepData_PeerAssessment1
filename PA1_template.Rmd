@@ -1,13 +1,13 @@
 # Reproducible Research: Peer Assessment 1
 
 ```{r setoptions, message=FALSE, echo=TRUE}
-require(knitr)
-opts_chunk$set(echo=TRUE)
+  require(knitr)
+  opts_chunk$set(echo=TRUE)
 ```
 
 ## Loading and preprocessing the data
 ```{r load}
-# The compressed zip archive
+  # The compressed zip archive
   zip_filename <- "activity.zip"
 
   # The data file stored inside the compressed zip archive
@@ -18,37 +18,53 @@ opts_chunk$set(echo=TRUE)
   obs <- read.csv(data_filename)
 
   # Aggregate by day
-  steps_per_day <- aggregate(obs$steps, list(steps = obs$steps), sum)
-  mean_steps_per_day <- mean(steps_per_day$steps)
-  median_steps_per_day <- median(steps_per_day$steps)
+  steps_per_day <- aggregate(steps ~ date, data = obs, sum)
 
-  # Aggregate by time
-  obs$time_of_day <- 
-
+  # Aggregate by time and average
+  steps_per_interval <- aggregate(steps ~ interval, data = obs, mean)
+   
   # Summarize the data
   summary(obs)
 ```
 Observations: `r dim(obs)[1]`  
-Directory: `r getwd()`
 
 
 ## What is mean total number of steps taken per day?
-```{r mean}
-hist(steps_per_day$steps, main="Total Steps per day", 
-     xlab=paste("Steps
-      ", "mean","=",format(mean_steps_per_day,digits=0), 
-      "median","=",median_steps_per_day))
-abline(v=mean_steps_per_day, lty = 2, lwd = .1, col = "red")
-abline(v=median_steps_per_day, lty = 1, lwd = .1, col = "blue")
-legend("topright", c(paste("mean","=",format(mean_steps_per_day,digits=0)), 
-                     paste("median","=",median_steps_per_day)), 
-       col = c("red", "blue"), lty = c(2, 1),
-       text.col=c("red", "blue"), bg = "gray90")
+```{r daily_mean}
+  mean_steps_per_day <- mean(steps_per_day$steps)
+  median_steps_per_day <- median(steps_per_day$steps)
+  
+  hist(steps_per_day$steps, main="Total Steps per day", 
+       xlab="Daily Steps")
+  abline(v=mean_steps_per_day, lty = 4, lwd = .1, col = "red", pch = 3)
+  abline(v=median_steps_per_day, lty = 2, lwd = .1, col = "blue")
+  legend("topright", c(paste("mean =",
+                             format(mean_steps_per_day,digits=0,scientific=FALSE)),
+                       paste("median =",median_steps_per_day)
+                       ), 
+         col = c("red", "blue"), lty = c(4, 2),
+         text.col=c("red", "blue"), bg = "gray90")
 ```
 
 ## What is the average daily activity pattern?
-```{r mean}
+```{r interval_mean}
+  plot(steps_per_interval$interval, steps_per_interval$steps, 
+       main="Average Steps per Interval", 
+       xlab="Five minute Interval Identifier", 
+       ylab="Steps", 
+       type="l")
 
+  maxes <- steps_per_interval[steps_per_interval$steps == max(steps_per_interval$steps), ]
+  n_maxes <- dim(maxes)[1]
+
+  if (n_maxes == 1) {
+    legend <- c(paste("Maximum mean steps:", format(maxes$steps,digits=0)),
+                paste("For interval ID:", maxes$interval))
+  } else {
+    legend <- c(paste("Maximum mean steps:", format(maxes$steps[1],digits=0)),
+                paste("For interval IDs:", paste(maxes$interval, collapse=" ")))
+  }
+  legend("topright", legend, bg = "gray90", text.col="blue")
 ```
 
 
