@@ -141,10 +141,8 @@ means has almost no effect on mean steps, and decreases the median steps slightl
 ```r
   require(lattice)
   data_set_4 <- aggregate(steps ~ interval + day_type , data = imputed_obs, mean)
-  xyplot(steps ~ interval | day_type, data = , layout = c(1, 2))
+  xyplot(steps ~ interval | day_type, data = data_set_4, layout = c(1, 2), type="l")
 ```
 
-```
-## Error: object 'day_type' not found
-```
+![plot of chunk weekdays_weekends](figure/weekdays_weekends.png) 
   
