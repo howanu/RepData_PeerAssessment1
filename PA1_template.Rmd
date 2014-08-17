@@ -1,6 +1,6 @@
 # Reproducible Research: Peer Assessment 1
 
-```{r setoptions, message=FALSE, echo=FALSE}
+```{r setoptions, message=FALSE, echo=TRUE}
 require(knitr)
 opts_chunk$set(echo=TRUE)
 ```
@@ -13,8 +13,19 @@ opts_chunk$set(echo=TRUE)
   # The data file stored inside the compressed zip archive
   data_filename <- "activity.csv"
 
+  # Reading the data
   unzip(zip_filename)
   obs <- read.csv(data_filename)
+
+  # Aggregate by day
+  steps_per_day <- aggregate(obs$steps, list(steps = obs$steps), sum)
+  mean_steps_per_day <- mean(steps_per_day$steps)
+  median_steps_per_day <- median(steps_per_day$steps)
+
+  # Aggregate by time
+  obs$time_of_day <- 
+
+  # Summarize the data
   summary(obs)
 ```
 Observations: `r dim(obs)[1]`  
@@ -22,11 +33,23 @@ Directory: `r getwd()`
 
 
 ## What is mean total number of steps taken per day?
-
-
+```{r mean}
+hist(steps_per_day$steps, main="Total Steps per day", 
+     xlab=paste("Steps
+      ", "mean","=",format(mean_steps_per_day,digits=0), 
+      "median","=",median_steps_per_day))
+abline(v=mean_steps_per_day, lty = 2, lwd = .1, col = "red")
+abline(v=median_steps_per_day, lty = 1, lwd = .1, col = "blue")
+legend("topright", c(paste("mean","=",format(mean_steps_per_day,digits=0)), 
+                     paste("median","=",median_steps_per_day)), 
+       col = c("red", "blue"), lty = c(2, 1),
+       text.col=c("red", "blue"), bg = "gray90")
+```
 
 ## What is the average daily activity pattern?
+```{r mean}
 
+```
 
 
 ## Imputing missing values
