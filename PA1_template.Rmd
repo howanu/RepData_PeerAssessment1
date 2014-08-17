@@ -17,6 +17,9 @@
   unzip(zip_filename)
   obs <- read.csv(data_filename)
 
+  # Add weekend/weekday typing
+  obs$day_type <- factor(ifelse(as.POSIXlt(obs$date)$wday %% 6, "weekend", "weekday"))
+
   # Aggregate by day
   steps_per_day <-   aggregate(steps ~ date, data = obs, sum)
   u_steps_per_day <- aggregate(steps ~ date, data = obs, mean)
@@ -102,10 +105,13 @@ na_measurements <- steps_hist(steps_per_day$steps, "NAs ignored")
   measurements
 ```
 As shown in the table above, replacement of missing values by rounded interval
-means has almost no effect on mean steps, and decreses the median steps slightly
+means has almost no effect on mean steps, and decreases the median steps slightly
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-  # COmparable dates
-  #obs$datePOSIX <- as.POSIXlt(obs$date)
-  #obs$datestring <- as.character(obs$date)
+```{r weekdays_weekends}
+  require(lattice)
+  data_set_4 <- aggregate(steps ~ interval + day_type , data = imputed_obs, mean)
+  xyplot(steps ~ interval | day_type, data = , layout = c(1, 2))
+```
+  
