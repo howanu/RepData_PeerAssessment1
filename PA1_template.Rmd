@@ -34,19 +34,25 @@ Observations: `r dim(obs)[1]`
 
 ## What is mean total number of steps taken per day?
 ```{r daily_mean}
-  mean_steps_per_day <- mean(steps_per_day$steps)
-  median_steps_per_day <- median(steps_per_day$steps)
+steps_hist <- function(steps, titlemod) {
+  mean_steps_per_day <- mean(steps)
+  median_steps_per_day <- median(steps)
   
-  hist(steps_per_day$steps, main="Total Steps per day", 
+  hist(steps, main=paste("Total Steps per day -",titlemod), 
        xlab="Daily Steps")
   abline(v=mean_steps_per_day, lty = 4, lwd = .1, col = "red", pch = 3)
   abline(v=median_steps_per_day, lty = 2, lwd = .1, col = "blue")
   legend("topright", c(paste("mean =",
-                             format(mean_steps_per_day,digits=0,scientific=FALSE)),
+                             format(round(mean_steps_per_day),scientific=FALSE)),
                        paste("median =",median_steps_per_day)
                        ), 
          col = c("red", "blue"), lty = c(4, 2),
          text.col=c("red", "blue"), bg = "gray90")
+  data.frame(mean = c(mean_steps_per_day), median = c(median_steps_per_day))
+}
+na_measurements <- steps_hist(steps_per_day$steps, "NAs ignored")
+
+
 ```
 
 ## What is the average daily activity pattern?
@@ -62,10 +68,10 @@ Observations: `r dim(obs)[1]`
   n_maxes <- dim(maxes)[1]
 
   if (n_maxes == 1) {
-    legend <- c(paste("Maximum mean steps:", format(maxes$steps,digits=0)),
+    legend <- c(paste("Maximum mean steps:", round(maxes$steps)),
                 paste("For interval ID:", maxes$interval))
   } else {
-    legend <- c(paste("Maximum mean steps:", format(maxes$steps[1],digits=0)),
+    legend <- c(paste("Maximum mean steps:", round(maxes$steps[1])),
                 paste("For interval IDs:", paste(maxes$interval, collapse=" ")))
   }
   legend("topright", legend, bg = "gray90", text.col="blue")
@@ -85,9 +91,18 @@ Observations: `r dim(obs)[1]`
   names(int_lookup)[names(int_lookup)=="steps"] <- "u_steps"
   imputers <- join(obs[is_missing,], int_lookup, by="interval")
   imputed_obs <- obs
-  imputed_obs$steps[is_missing] <- imputers$u_steps
+  imputed_obs$steps[is_missing] <- round(imputers$u_steps)
 
+  imp_measurements <- steps_hist(
+    aggregate(steps ~ date, data = imputed_obs, sum)$steps,
+    "NAs imputed w/ interval mean")
+
+  measurements <- rbind(na_measurements, imp_measurements)
+  row.names(measurements) <- c("NA_ignored", "NA_imputed")
+  measurements
 ```
+As shown in the table above, replacement of missing values by rounded interval
+means has almost no effect on mean steps, and decreses the median steps slightly
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
